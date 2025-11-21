@@ -34,6 +34,8 @@ int totalResponsesBST(BSTNode *root) {
     return root->count + totalResponsesBST(root->left) + totalResponsesBST(root->right);
 }
 
+/* ================== CREATE STRUCTS ================== */
+
 SurveyNode* createSurveyNode(char *title) {
     SurveyNode *s = malloc(sizeof(SurveyNode));
     strcpy(s->title, title);
@@ -92,6 +94,7 @@ void addSurveyName(SurveyNode **head) {
         SurveyNode *node = createSurveyNode(title);
         node->next = *head;
         *head = node;
+
         printf("Survey \"%s\" created!\n", title);
         break;
 
@@ -99,7 +102,8 @@ void addSurveyName(SurveyNode **head) {
     }
 }
 
-/* ================== SELECT SURVEYS ================== */
+
+/* ================== SELECT SURVEY ================== */
 
 SurveyNode* selectAnySurvey(SurveyNode *head) {
     if (!head) {
@@ -113,21 +117,28 @@ SurveyNode* selectAnySurvey(SurveyNode *head) {
 
     int choice;
     printf("Enter survey number: ");
+
     if (scanf("%d", &choice) != 1) {
-        printf("Invalid number.\n");
+        printf("Invalid input. Enter a number.\n");
         scanf("%*[^\n]");
         scanf("%*c");
         return NULL;
     }
     scanf("%*c");
 
+    if (choice < 1 || choice >= i) {
+        printf("Invalid choice. Select valid survey.\n");
+        return NULL;
+    }
+
     int idx = 1;
-    for (SurveyNode *t = head; t; t = t->next, idx++)
+    for (SurveyNode *t = head; t; t = t->next, ++idx)
         if (idx == choice) return t;
 
-    printf("Invalid choice.\n");
+    printf("Invalid selection.\n");
     return NULL;
 }
+
 
 /* ================== ADD QUESTIONS ================== */
 
@@ -136,6 +147,7 @@ void addQuestionToSurvey(SurveyNode *s) {
 
     while (1) {
         printf("Enter number of questions: ");
+
         if (scanf("%d", &qCount) != 1) {
             printf("Invalid input. Enter a number.\n");
             scanf("%*[^\n]");
@@ -177,6 +189,7 @@ void addQuestionToSurvey(SurveyNode *s) {
                 scanf("%*c");
                 continue;
             }
+
             scanf("%*c");
 
             if (nopt < 2 || nopt > 5) {
@@ -204,7 +217,8 @@ void addQuestionToSurvey(SurveyNode *s) {
     }
 }
 
-/* ================== VIEW QUESTIONS ================== */
+
+/* ================== VIEW ================== */
 
 void viewSurveyDetails(SurveyNode *head) {
     SurveyNode *s = selectAnySurvey(head);
@@ -218,29 +232,8 @@ void viewSurveyDetails(SurveyNode *head) {
     }
 }
 
+
 /* ================== CONDUCT ================== */
-
-void conductSurvey(SurveyNode *head) {
-    SurveyNode *s = selectSurveyWithQuestions(head);
-    if (!s) return;
-
-    for (Question *q = s->questions; q; q = q->next) {
-        printf("\n%s\n", q->text);
-        for (int i = 0; i < q->numOptions; i++)
-            printf("%d. %s\n", i+1, q->options[i]);
-
-        int choice;
-        printf("Enter choice: ");
-        scanf("%d", &choice);
-        scanf("%*c");
-
-        q->responses = insertBST(q->responses, q->options[choice-1]);
-    }
-
-    s->conducted = 1;
-}
-
-/* ================== PUBLISH RESULTS ================== */
 
 SurveyNode* selectSurveyWithQuestions(SurveyNode *head) {
     int i = 0;
@@ -254,17 +247,65 @@ SurveyNode* selectSurveyWithQuestions(SurveyNode *head) {
 
     int choice;
     printf("Select survey: ");
-    scanf("%d", &choice);
+    if (scanf("%d", &choice) != 1) {
+        printf("Invalid input.\n");
+        scanf("%*[^\n]");
+        scanf("%*c");
+        return NULL;
+    }
     scanf("%*c");
+
+    if (choice < 1 || choice > i) {
+        printf("Invalid survey.\n");
+        return NULL;
+    }
 
     int idx = 0;
     for (SurveyNode *t = head; t; t = t->next)
         if (t->questions && ++idx == choice)
             return t;
 
-    printf("Invalid survey.\n");
     return NULL;
 }
+
+void conductSurvey(SurveyNode *head) {
+    SurveyNode *s = selectSurveyWithQuestions(head);
+    if (!s) return;
+
+    for (Question *q = s->questions; q; q = q->next) {
+        printf("\n%s\n", q->text);
+        for (int i = 0; i < q->numOptions; i++)
+            printf("%d. %s\n", i+1, q->options[i]);
+
+        int choice;
+
+        while (1) {
+            printf("Enter choice (1-%d): ", q->numOptions);
+
+            if (scanf("%d", &choice) != 1) {
+                printf("Invalid input. Enter a number.\n");
+                scanf("%*[^\n]");
+                scanf("%*c");
+                continue;
+            }
+
+            scanf("%*c");
+
+            if (choice < 1 || choice > q->numOptions) {
+                printf("Invalid option! Choose a valid option.\n");
+                continue;
+            }
+
+            q->responses = insertBST(q->responses, q->options[choice-1]);
+            break;
+        }
+    }
+
+    s->conducted = 1;
+}
+
+
+/* ================== PUBLISH RESULTS ================== */
 
 void publishResults(SurveyNode *head) {
     SurveyNode *s = selectSurveyWithQuestions(head);
@@ -285,6 +326,7 @@ void publishResults(SurveyNode *head) {
     }
 }
 
+
 /* ================== DELETE QUESTION ================== */
 
 void deleteQuestion(SurveyNode *head) {
@@ -300,18 +342,25 @@ void deleteQuestion(SurveyNode *head) {
 
     int choice;
     printf("Enter question number: ");
-    scanf("%d", &choice);
+
+    if (scanf("%d", &choice) != 1) {
+        printf("Invalid input. Enter a number.\n");
+        scanf("%*[^\n]");
+        scanf("%*c");
+        return;
+    }
+
     scanf("%*c");
+
+    if (choice < 1 || choice >= qno) {
+        printf("Invalid question number.\n");
+        return;
+    }
 
     Question *curr = s->questions, *prev = NULL;
     for (int i = 1; curr && i < choice; i++) {
         prev = curr;
         curr = curr->next;
-    }
-
-    if (!curr) {
-        printf("Invalid question.\n");
-        return;
     }
 
     if (!prev) s->questions = curr->next;
@@ -320,6 +369,7 @@ void deleteQuestion(SurveyNode *head) {
     free(curr);
     printf("Question deleted.\n");
 }
+
 
 /* ================== DELETE SURVEY ================== */
 
