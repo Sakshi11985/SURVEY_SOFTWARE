@@ -27,8 +27,7 @@ int main()
             scanf("%*c");
             continue;
         }
-
-        scanf("%*c"); // consume newline
+        scanf("%*c"); // clear newline
 
         switch (choice)
         {
@@ -38,8 +37,7 @@ int main()
         case 2:
         {
             SurveyNode *s = selectAnySurvey(surveyList);
-            if (s)
-                addQuestionToSurvey(s);
+            if (s) addQuestionToSurvey(s);
             break;
         }
         case 3:
