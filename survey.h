@@ -25,7 +25,6 @@ typedef struct Survey {
 
 typedef Survey SurveyNode;
 
-// Prototypes
 BSTNode* createBSTNode(char *option);
 BSTNode* insertBST(BSTNode *root, char *option);
 BSTNode* searchBST(BSTNode *root, const char *key);
