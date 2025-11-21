@@ -25,12 +25,13 @@ typedef struct Survey {
 
 typedef Survey SurveyNode;
 
+// BST
 BSTNode* createBSTNode(char *option);
 BSTNode* insertBST(BSTNode *root, char *option);
 BSTNode* searchBST(BSTNode *root, const char *key);
 int totalResponsesBST(BSTNode *root);
 
-Question* newQuestion(char *text, int numOptions);
+// Survey functions
 void addSurveyName(SurveyNode **head);
 void addQuestionToSurvey(SurveyNode *s);
 void viewSurveyDetails(SurveyNode *head);
