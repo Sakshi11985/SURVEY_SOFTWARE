@@ -27,7 +27,8 @@ int main()
             scanf("%*c");
             continue;
         }
-        scanf("%*c"); // clear newline
+
+        scanf("%*c"); // consume newline
 
         switch (choice)
         {
@@ -37,7 +38,8 @@ int main()
         case 2:
         {
             SurveyNode *s = selectAnySurvey(surveyList);
-            if (s) addQuestionToSurvey(s);
+            if (s)
+                addQuestionToSurvey(s);
             break;
         }
         case 3:
@@ -56,8 +58,9 @@ int main()
             publishResults(surveyList);
             break;
         case 8:
-            printf("Exiting...\n");
+            printf("Exiting...");
             return 0;
+
         default:
             printf("Invalid choice.\n");
         }
