@@ -3,7 +3,7 @@
 #include <string.h>
 #include "survey.h"
 
-// ================= BST SECTION =================
+// =========================== BST ===========================
 
 BSTNode* createBSTNode(char *option) {
     BSTNode *node = malloc(sizeof(BSTNode));
@@ -36,7 +36,7 @@ int totalResponsesBST(BSTNode *root) {
     return root->count + totalResponsesBST(root->left) + totalResponsesBST(root->right);
 }
 
-// ================= SURVEY STRUCTS =================
+// ======================= SURVEY STRUCTS =======================
 
 SurveyNode* createSurveyNode(char *title) {
     SurveyNode *s = malloc(sizeof(SurveyNode));
@@ -57,22 +57,20 @@ Question* newQuestion(char *text, int numOptions) {
     return q;
 }
 
-// ================= ADD SURVEY NAME (SCANF ONLY) =================
+// ======================= ADD SURVEY NAME =======================
 
 void addSurveyName(SurveyNode **head) {
     char title[100];
 
     while (1) {
         printf("Enter Survey Title: ");
-        scanf(" %99[^\n]", title);  // read full line
+        scanf(" %99[^\n]", title);
 
-        // empty?
         if (strlen(title) == 0) {
             printf("Survey title cannot be empty.\n");
             continue;
         }
 
-        // check whitespace-only
         int allSpaces = 1;
         for (int i = 0; title[i]; i++) {
             if (title[i] != ' ' && title[i] != '\t') {
@@ -80,12 +78,12 @@ void addSurveyName(SurveyNode **head) {
                 break;
             }
         }
+
         if (allSpaces) {
-            printf("Survey title cannot be empty.\n");
+            printf("Survey title cannot be blank.\n");
             continue;
         }
 
-        // duplicate?
         for (SurveyNode *temp = *head; temp; temp = temp->next) {
             if (strcmp(temp->title, title) == 0) {
                 printf("Survey already exists.\n");
@@ -93,7 +91,6 @@ void addSurveyName(SurveyNode **head) {
             }
         }
 
-        // insert new survey
         SurveyNode *node = createSurveyNode(title);
         node->next = *head;
         *head = node;
@@ -105,7 +102,7 @@ void addSurveyName(SurveyNode **head) {
     }
 }
 
-// ================= SELECT SURVEY =================
+// ======================= SELECT SURVEYS =======================
 
 SurveyNode* selectAnySurvey(SurveyNode *head) {
     if (!head) {
@@ -150,14 +147,15 @@ SurveyNode* selectSurveyWithQuestions(SurveyNode *head) {
         if (t->questions && ++idx == choice)
             return t;
 
-    printf("Invalid.\n");
+    printf("Invalid survey.\n");
     return NULL;
 }
 
-// ================= ADD QUESTIONS =================
+// ======================= ADD QUESTION =======================
 
 void addQuestionToSurvey(SurveyNode *s) {
     int qCount;
+
     printf("Enter number of questions: ");
     scanf("%d", &qCount);
     scanf("%*c");
@@ -169,9 +167,24 @@ void addQuestionToSurvey(SurveyNode *s) {
         printf("\nEnter text for Question %d: ", k);
         scanf(" %199[^\n]", text);
 
-        printf("Enter number of options (2-5): ");
-        scanf("%d", &nopt);
-        scanf("%*c");
+        while (1) {
+            printf("Enter number of options (2-5): ");
+            
+            if (scanf("%d", &nopt) != 1) {
+                printf("Invalid input. Enter a number.\n");
+                scanf("%*[^\n]");
+                scanf("%*c");
+                continue;
+            }
+
+            scanf("%*c");
+
+            if (nopt < 2 || nopt > 5) {
+                printf("Number must be between 2 and 5.\n");
+                continue;
+            }
+            break;
+        }
 
         Question *q = newQuestion(text, nopt);
 
@@ -180,7 +193,6 @@ void addQuestionToSurvey(SurveyNode *s) {
             scanf(" %49[^\n]", q->options[i]);
         }
 
-        // append
         if (!s->questions) s->questions = q;
         else {
             Question *t = s->questions;
@@ -190,7 +202,7 @@ void addQuestionToSurvey(SurveyNode *s) {
     }
 }
 
-// ================= VIEW =================
+// ======================= VIEW =======================
 
 void viewSurveyDetails(SurveyNode *head) {
     SurveyNode *s = selectAnySurvey(head);
@@ -204,7 +216,7 @@ void viewSurveyDetails(SurveyNode *head) {
     }
 }
 
-// ================= CONDUCT SURVEY =================
+// ======================= CONDUCT SURVEY =======================
 
 void conductSurvey(SurveyNode *head) {
     SurveyNode *s = selectSurveyWithQuestions(head);
@@ -226,7 +238,7 @@ void conductSurvey(SurveyNode *head) {
     s->conducted = 1;
 }
 
-// ================= PUBLISH RESULTS =================
+// ======================= PUBLISH RESULTS =======================
 
 void publishResults(SurveyNode *head) {
     SurveyNode *s = selectSurveyWithQuestions(head);
@@ -247,7 +259,7 @@ void publishResults(SurveyNode *head) {
     }
 }
 
-// ================= DELETE QUESTION =================
+// ======================= DELETE QUESTION =======================
 
 void deleteQuestion(SurveyNode *head) {
     SurveyNode *s = selectAnySurvey(head);
@@ -283,7 +295,7 @@ void deleteQuestion(SurveyNode *head) {
     printf("Question deleted.\n");
 }
 
-// ================= DELETE SURVEY =================
+// ======================= DELETE SURVEY =======================
 
 void deleteSurvey(SurveyNode **head) {
     SurveyNode *s = selectAnySurvey(*head);
@@ -301,7 +313,6 @@ void deleteSurvey(SurveyNode **head) {
     if (!prev) *head = curr->next;
     else prev->next = curr->next;
 
-    // free questions
     Question *q = curr->questions;
     while (q) {
         Question *tmp = q;
